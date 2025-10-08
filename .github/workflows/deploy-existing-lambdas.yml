@@ -40,7 +40,7 @@ jobs:
             | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' \
             | cut -d/ -f1 | sort -u | tr '\n' ' ')
           if [ -z "$MODS" ]; then
-            echo "changed=" >> $GITHUB_OUTPUT
+            echo "changed=[]" >> $GITHUB_OUTPUT
           else
             echo "changed=$(echo $MODS | jq -R -s -c 'split(" ")[:-1]')" >> $GITHUB_OUTPUT
           fi
