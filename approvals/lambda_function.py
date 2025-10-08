@@ -1,5 +1,5 @@
 # Main Lambda entrypoint - routes requests to appropriate handlers
-# NOTE: small comment added to trigger CI deployment when pushed
+# NOTE: Testing workflow fix for module detection
 import json
 import logging
 import traceback
