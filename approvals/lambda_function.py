@@ -26,6 +26,7 @@ logger.setLevel(logging.INFO)
 # Fresh deployment after stack cleanup
 # Test code-only update workflow
 # Final test push
+# Verify workflow fix
 
 def lambda_handler(request_event, context):
     """
