@@ -10,6 +10,7 @@ from task_function import (
 
 # ——— Lambda Handler ———
 def lambda_handler(event, context):
+    # CI: code-only update trigger
 
     # Get HTTP method and CORS headers
     method = event.get("httpMethod", "").upper()

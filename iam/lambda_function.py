@@ -53,6 +53,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Returns:
         HTTP response with status code, headers, and JSON body
     """
+        # CI: code-only update trigger
     method = (event.get("httpMethod") or "").upper()
     query_params = event.get("queryStringParameters") or {}
     target_user_id = query_params.get("user_id") or query_params.get("userId")

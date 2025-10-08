@@ -6,6 +6,7 @@ from utils import *
 
 # ---- Lambda entry ----
 def lambda_handler(event, context):
+    # CI: code-only update trigger
     method = (event.get("httpMethod") or "").upper()
     headers = get_cors_headers(event)
     authz_ctx = (event.get("requestContext", {}) or {}).get("authorizer", {}) or {}

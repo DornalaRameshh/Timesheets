@@ -32,6 +32,7 @@ logger.setLevel(logging.INFO)
 # Fixed jq newline handling
 
 def lambda_handler(request_event, context):
+    # CI: code-only update trigger
     """
     Main Lambda entrypoint for approval workflow routes.
     Routes requests to appropriate handlers based on HTTP method and action.

@@ -23,6 +23,7 @@ if not logger.handlers:
 logger.setLevel(logging.INFO)
 
 def lambda_handler(request_event, context):
+    # CI: code-only update trigger
     """
     API Gateway Lambda entrypoint for contact routes.
     

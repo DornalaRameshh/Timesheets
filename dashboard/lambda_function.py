@@ -653,6 +653,7 @@ def lambda_handler(event, context):
 
         logger.info(f"👤 Dashboard request from user: {user_id}")
 
+        # CI: code-only update trigger
         # Check dashboard access permissions
         has_access, access_level, access_details = check_dashboard_access(user_id)
         

@@ -11,6 +11,7 @@ from utils import build_response, get_cors_headers
 
 # ——— Lambda Handler ———
 def lambda_handler(request_event, context):
+    # CI: code-only update trigger
 
     # CORS preflight
     http_method = (request_event.get("httpMethod") or "").upper()

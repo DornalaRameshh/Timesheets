@@ -219,6 +219,7 @@ def lambda_handler(event: Dict[str, Any], context: Any):
     Current User: tatireddyp1-sys
     Date: 2025-09-17 10:44:27 UTC
     """
+    # CI: code-only update trigger
     cors_headers = get_cors_headers(event)
     
     try:

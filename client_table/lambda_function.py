@@ -46,6 +46,7 @@ def lambda_handler(request_event, context):
     except Exception:
         return cors_response(401, {"error": "Unauthorized"})
 
+                # CI: code-only update trigger
     # ——— Dispatch request to appropriate CRUD handler ———
     try:
         route_handlers = {

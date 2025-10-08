@@ -11,6 +11,7 @@ from token_utils import get_cors_headers
 # --------------------------- MAIN LAMBDA HANDLER ---------------------------
 def lambda_handler(event, context):
     try:
+        # CI: code-only update trigger
         cors_headers = get_cors_headers(event)
         http_method = event.get("httpMethod", "")
 

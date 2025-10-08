@@ -23,6 +23,7 @@ from utils.logging_helpers import get_logger
 logger = get_logger("project_lambda", logging.INFO)
 
 def lambda_handler(request_event, context):
+    # CI: code-only update trigger
     """
     COMPREHENSIVE API Gateway Lambda entrypoint for project routes with enhanced policy engine integration.
     

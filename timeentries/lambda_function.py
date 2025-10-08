@@ -28,6 +28,7 @@ def lambda_handler(event, context):
     - Delegates to route handlers according to action.
     - Ensures unified error responses and CORS headers.
     """
+        # CI: code-only update trigger
     try:
         method = event.get("httpMethod", "").upper()
         response = None

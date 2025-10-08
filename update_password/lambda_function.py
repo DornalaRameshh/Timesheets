@@ -5,6 +5,7 @@ from utils import get_cors_headers, build_response, verify_password, hash_passwo
 
 # Lambda handler for user password reset with explicit CORS via get_cors_headers
 def lambda_handler(event, context):
+    # CI: code-only update trigger
     # Compute CORS headers for every response
     headers = get_cors_headers(event)
     print("headers", headers)
