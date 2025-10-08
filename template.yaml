@@ -231,8 +231,8 @@ Resources:
       FunctionName: users
       CodeUri: user_routes/
       Handler: lambda_function.lambda_handler
-      Policies:
-        - AWSLambdaBasicExecutionRole
+      Role:
+        Ref: ExistingLambdaExecutionRoleArn
       Events:
         ApiEvent:
           Type: Api
