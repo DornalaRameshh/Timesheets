@@ -48,7 +48,8 @@ jobs:
           if [ -z "$MODS" ]; then
             echo "changed=[]" >> $GITHUB_OUTPUT
           else
-            echo "changed=$(echo $MODS | jq -R -s -c 'split(" ")[:-1]')" >> $GITHUB_OUTPUT
+            CHANGED_JSON=$(echo "$MODS" | tr ' ' '\n' | jq -R -s -c 'map(select(. != ""))')
+            echo "changed=$CHANGED_JSON" >> $GITHUB_OUTPUT
           fi
           echo "Changed modules: $MODS"
 
