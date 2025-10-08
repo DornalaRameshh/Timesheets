@@ -48,7 +48,7 @@ jobs:
 
   deploy:
     needs: detect
-    if: ${{ needs.detect.outputs.changed != '' }}
+    if: ${{ needs.detect.outputs.changed != '[]' }}
     runs-on: ubuntu-latest
 
     strategy:
