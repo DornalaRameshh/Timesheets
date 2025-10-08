@@ -29,6 +29,7 @@ logger.setLevel(logging.INFO)
 # Verify workflow fix
 # Jq fix applied
 # Test again
+# Fixed jq newline handling
 
 def lambda_handler(request_event, context):
     """
