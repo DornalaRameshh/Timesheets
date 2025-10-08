@@ -22,6 +22,7 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+# CI trigger comment: re-run deployment validation
 
 def lambda_handler(request_event, context):
     """
