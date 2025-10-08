@@ -50,12 +50,19 @@ jobs:
 
           CHANGED=$(git diff --name-only $RANGE | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' | cut -d/ -f1 | sort -u | tr '\n' ' ')
           echo "Modules changed: $CHANGED"
-          if [ -z "$CHANGED" ]; then
-            echo "changed=" >> $GITHUB_OUTPUT
+
+          # If template.yaml itself changed, force a deploy by setting changed to a non-empty value
+          if git diff --name-only $RANGE | grep -q '^template.yaml$'; then
+            echo "template.yaml changed — forcing full deploy"
+            echo "changed=[\"all\"]" >> $GITHUB_OUTPUT
           else
-            # Build JSON array for matrix
-            JSON=$(echo $CHANGED | jq -R -s -c 'split(" ")[:-1]')
-            echo "changed=$JSON" >> $GITHUB_OUTPUT
+            if [ -z "$CHANGED" ]; then
+              echo "changed=" >> $GITHUB_OUTPUT
+            else
+              # Build JSON array for matrix
+              JSON=$(echo $CHANGED | jq -R -s -c 'split(" ")[:-1]')
+              echo "changed=$JSON" >> $GITHUB_OUTPUT
+            fi
           fi
 
   deploy:
