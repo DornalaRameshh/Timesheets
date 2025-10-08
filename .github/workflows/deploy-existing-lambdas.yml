@@ -1,0 +1,127 @@
+name: Deploy Changed Lambdas (update existing)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'approvals/**'
+      - 'client_table/**'
+      - 'contacts/**'
+      - 'dashboard/**'
+      - 'iam/**'
+      - 'lookup/**'
+      - 'projects_table/**'
+      - 'project_assignment/**'
+      - 'tasks/**'
+      - 'timeentries/**'
+      - 'update_password/**'
+      - 'user_login/**'
+      - 'user_routes/**'
+      - '.github/workflows/deploy-existing-lambdas.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - id: diff
+        shell: bash
+        run: |
+          MODS=$(git diff --name-only HEAD^ HEAD \
+            | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' \
+            | cut -d/ -f1 | sort -u | tr '\n' ' ')
+          if [ -z "$MODS" ]; then
+            echo "changed=" >> $GITHUB_OUTPUT
+          else
+            echo "changed=$(echo $MODS | jq -R -s -c 'split(" ")[:-1]')" >> $GITHUB_OUTPUT
+          fi
+          echo "Changed modules: $MODS"
+
+  deploy:
+    needs: detect
+    if: ${{ needs.detect.outputs.changed != '' }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.detect.outputs.changed) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python (for packaging deps)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::026090520154:role/aws_github
+          aws-region: us-east-1
+
+      - name: Resolve Lambda function name from module
+        id: map
+        shell: bash
+        run: |
+          mod="${{ matrix.module }}"
+          case "$mod" in
+            approvals)           FN="approval" ;;
+            client_table)        FN="clients" ;;
+            contacts)            FN="contacts" ;;
+            dashboard)           FN="dashboard" ;;
+            iam)                 FN="iam" ;;
+            lookup)              FN="lookup" ;;
+            projects_table)      FN="projects" ;;
+            project_assignment)  FN="projects_assignment" ;;
+            tasks)               FN="tasks" ;;
+            timeentries)         FN="timeentries" ;;
+            update_password)     FN="update_password" ;;
+            user_login)          FN="login" ;;
+            user_routes)         FN="users" ;;
+            *) echo "Unknown module: $mod"; exit 1 ;;
+          esac
+          echo "function_name=$FN" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies (if any) into module folder
+        working-directory: ${{ matrix.module }}
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt -t .
+          else
+            echo "No requirements.txt in $PWD"
+          fi
+
+      - name: Package module
+        shell: bash
+        run: |
+          zip_path="/tmp/${{ matrix.module }}.zip"
+          (cd "${{ matrix.module }}" && zip -r "$zip_path" . -x "*.pyc" -x "__pycache__/*" -x "tests/*" -x "*/.DS_Store")
+          echo "ZIP at $zip_path"
+
+      - name: Update function code
+        shell: bash
+        run: |
+          aws lambda update-function-code \
+            --region us-east-1 \
+            --function-name "${{ steps.map.outputs.function_name }}" \
+            --zip-file "fileb:///tmp/${{ matrix.module }}.zip"
+
+      # Optional: publish a new version and point an alias (e.g., 'live')
+      # - name: Publish version and move alias
+      #   shell: bash
+      #   run: |
+      #     VER=$(aws lambda publish-version --function-name "${{ steps.map.outputs.function_name }}" --query Version --output text)
+      #     aws lambda update-alias --function-name "${{ steps.map.outputs.function_name }}" --name live --function-version "$VER" || \
+      #     aws lambda create-alias --function-name "${{ steps.map.outputs.function_name }}" --name live --function-version "$VER"
