@@ -27,6 +27,7 @@ logger.setLevel(logging.INFO)
 # Test code-only update workflow
 # Final test push
 # Verify workflow fix
+# Jq fix applied
 
 def lambda_handler(request_event, context):
     """
