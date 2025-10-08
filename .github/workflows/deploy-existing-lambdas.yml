@@ -36,6 +36,12 @@ jobs:
       - id: diff
         shell: bash
         run: |
+          # Ensure jq is available
+          if ! command -v jq >/dev/null 2>&1; then
+            echo "Installing jq..."
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+
           MODS=$(git diff --name-only HEAD^ HEAD \
             | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' \
             | cut -d/ -f1 | sort -u | tr '\n' ' ')
