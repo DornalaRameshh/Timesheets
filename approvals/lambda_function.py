@@ -23,6 +23,7 @@ if not logger.handlers:
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 # CI trigger comment: re-run deployment validation
+# Fresh deployment after stack cleanup
 
 def lambda_handler(request_event, context):
     """
