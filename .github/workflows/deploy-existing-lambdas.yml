@@ -36,16 +36,40 @@ jobs:
       - id: diff
         shell: bash
         run: |
-          MODS=$(git diff --name-only HEAD^ HEAD \
-            | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' \
-            | cut -d/ -f1 | sort -u)
-          if [ -z "$MODS" ]; then
+          set +e  # Don't exit on command failures
+          
+          echo "Checking for changes in module directories..."
+          
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          echo "All changed files: $CHANGED_FILES"
+          
+          # Filter for module directories
+          MODS=$(echo "$CHANGED_FILES" | grep -E '^(approvals|client_table|contacts|dashboard|iam|lookup|projects_table|project_assignment|tasks|timeentries|update_password|user_login|user_routes)/' | cut -d/ -f1 | sort -u | tr '\n' ' ')
+          
+          echo "Changed modules raw: '$MODS'"
+          
+          # Clean up whitespace and create array
+          if [ -z "$MODS" ] || [ "$MODS" = " " ]; then
+            echo "No module changes detected"
             echo "changed=[]" >> $GITHUB_OUTPUT
           else
-            CHANGED_JSON=$(echo "$MODS" | awk 'BEGIN{ORS=""; print "["} {if(NR>1)print ","; print "\"" $0 "\""} END{print "]"}')
-            echo "changed=$CHANGED_JSON" >> $GITHUB_OUTPUT
+            # Convert space-separated list to JSON array
+            JSON_ARRAY="["
+            FIRST=true
+            for mod in $MODS; do
+              if [ "$FIRST" = true ]; then
+                JSON_ARRAY="$JSON_ARRAY\"$mod\""
+                FIRST=false
+              else
+                JSON_ARRAY="$JSON_ARRAY,\"$mod\""
+              fi
+            done
+            JSON_ARRAY="$JSON_ARRAY]"
+            
+            echo "JSON output: $JSON_ARRAY"
+            echo "changed=$JSON_ARRAY" >> $GITHUB_OUTPUT
           fi
-          echo "Changed modules: $MODS"
 
   deploy:
     needs: detect
