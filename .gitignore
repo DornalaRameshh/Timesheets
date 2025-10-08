@@ -1,0 +1,22 @@
+# AWS SAM build artifacts
+.aws-sam/
+
+# Environment files with sensitive data
+env.local.json
+
+# Temporary files
+*.tmp
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
